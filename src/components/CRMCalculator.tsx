@@ -22,32 +22,30 @@ const CRMCalculator = () => {
   };
 
   // Assumptions for calculations
-  const CRM_ENTRY_TIME = 10; // minutes per call
-  const ANALYSIS_TIME = 15; // minutes per call
+  const TIME_PER_CALL = 15; // minutes per call (notatka + draft)
   const AUTOMATION_EFFICIENCY = 0.85; // 85% time saved
 
   const [results, setResults] = useState({
-    crmEntryTime: 0,
-    analysisTime: 0,
+    totalManualTime: 0,
     totalTimeSaved: 0,
     moneySaved: 0,
     weeklyHoursSaved: 0,
     monthlyHoursSaved: 0,
+    monthlyCalls: 0,
   });
 
   useEffect(() => {
     // Total calls per week
     const totalWeeklyCalls = salespeople * callsPerWeek;
     
-    // Time spent on CRM entry (minutes per week)
-    const weeklyEntryTime = totalWeeklyCalls * CRM_ENTRY_TIME;
+    // Monthly calls
+    const monthlyCalls = totalWeeklyCalls * 4.33; // average weeks per month
     
-    // Time spent on analysis (minutes per week)
-    const weeklyAnalysisTime = totalWeeklyCalls * ANALYSIS_TIME;
+    // Time spent manually (minutes per week) - 15 min per call
+    const weeklyManualTime = totalWeeklyCalls * TIME_PER_CALL;
     
     // Total time that could be saved with automation (minutes per week)
-    const totalManualTime = weeklyEntryTime + weeklyAnalysisTime;
-    const timeSavedMinutes = totalManualTime * AUTOMATION_EFFICIENCY;
+    const timeSavedMinutes = weeklyManualTime * AUTOMATION_EFFICIENCY;
     const timeSavedHours = timeSavedMinutes / 60;
     
     // Money saved per week
@@ -58,12 +56,12 @@ const CRMCalculator = () => {
     const monthlySavings = weeklySavings * 4.33;
 
     setResults({
-      crmEntryTime: weeklyEntryTime,
-      analysisTime: weeklyAnalysisTime,
+      totalManualTime: weeklyManualTime,
       totalTimeSaved: timeSavedMinutes,
       moneySaved: weeklySavings,
       weeklyHoursSaved: timeSavedHours,
       monthlyHoursSaved: monthlyHoursSaved,
+      monthlyCalls: Math.round(monthlyCalls),
     });
   }, [salespeople, callsPerWeek, callDuration, hourlyCost]);
 
@@ -104,7 +102,7 @@ const CRMCalculator = () => {
             Kalkulator Oszczędności CallOS
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Oblicz, ile czasu i pieniędzy zaoszczędzisz dzięki automatycznemu uzupełnianiu CRM na podstawie rozmów
+            Oblicz, ile czasu i pieniędzy odzyskasz, gdy CallOS automatycznie wypełni CRM i przygotuje podsumowania rozmów za Twój zespół
           </p>
         </div>
 
@@ -185,23 +183,7 @@ const CRMCalculator = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Time Metrics */}
-              <div className="bg-card rounded-xl p-6 shadow-soft">
-                <div className="flex items-start gap-4">
-                  <div className="bg-accent rounded-lg p-3">
-                    <Clock className="w-6 h-6 text-accent-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-sm text-muted-foreground mb-1">
-                      Czas wprowadzania do CRM
-                    </h3>
-                    <p className="text-2xl font-bold text-foreground">
-                      {formatTime(results.crmEntryTime)} / tydzień
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+              {/* Monthly Calls */}
               <div className="bg-card rounded-xl p-6 shadow-soft">
                 <div className="flex items-start gap-4">
                   <div className="bg-accent rounded-lg p-3">
@@ -209,29 +191,46 @@ const CRMCalculator = () => {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-sm text-muted-foreground mb-1">
-                      Czas analizy rozmów
+                      Liczba rozmów miesięcznie
                     </h3>
                     <p className="text-2xl font-bold text-foreground">
-                      {formatTime(results.analysisTime)} / tydzień
+                      {results.monthlyCalls}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Savings Highlight */}
+              {/* Manual Time */}
+              <div className="bg-card rounded-xl p-6 shadow-soft">
+                <div className="flex items-start gap-4">
+                  <div className="bg-accent rounded-lg p-3">
+                    <Clock className="w-6 h-6 text-accent-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm text-muted-foreground mb-1">
+                      Czas wprowadzania do CRM i draft
+                    </h3>
+                    <p className="text-2xl font-bold text-foreground">
+                      {formatTime(results.totalManualTime)} / tydzień
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Time Savings */}
               <div className="bg-gradient-primary rounded-xl p-6 shadow-medium">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-sm text-primary-foreground/80 mb-2">
-                      Oszczędność czasu
+                    <h3 className="font-semibold text-lg text-primary-foreground mb-3">
+                      Czas
                     </h3>
                     <p className="text-3xl font-bold text-primary-foreground">
                       {formatTime(results.totalTimeSaved)} / tydzień
                     </p>
-                    <p className="text-lg text-primary-foreground/90 mt-1">
+                    <p className="text-2xl font-bold text-primary-foreground mt-2">
                       {results.weeklyHoursSaved.toFixed(1)} godz tygodniowo
                     </p>
-                    <p className="text-base text-primary-foreground/80 mt-1">
+                    <p className="text-2xl font-bold text-primary-foreground mt-1">
                       {results.monthlyHoursSaved.toFixed(0)} godz miesięcznie
                     </p>
                   </div>
@@ -242,8 +241,8 @@ const CRMCalculator = () => {
                         <DollarSign className="w-6 h-6 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-sm text-primary-foreground/80 mb-2">
-                          Oszczędność finansowa
+                        <h3 className="font-semibold text-lg text-primary-foreground mb-3">
+                          Pieniądze
                         </h3>
                         <p className="text-2xl font-bold text-primary-foreground">
                           {formatCurrency(results.moneySaved)} / tydzień
@@ -261,8 +260,108 @@ const CRMCalculator = () => {
               </div>
 
               <p className="text-xs text-muted-foreground text-center pt-2">
-                * Obliczenia zakładają 85% efektywność automatyzacji
+                Kalkulacja oparta na rzeczywistych danych z wdrożeń CallOS. Nie uwzględnia dodatkowych korzyści: lepszej jakości danych w CRM, automatycznego feedbacku dla zespołu i przygotowanych podsumowań dla klientów
               </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Problem-Solution Section */}
+        <div className="mt-16 max-w-5xl mx-auto">
+          <Card className="shadow-medium border-0 overflow-hidden">
+            <CardContent className="p-0">
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Problems Section */}
+                <div className="bg-card p-8 border-r border-border">
+                  <h3 className="text-2xl font-bold text-foreground mb-6">Znasz to?</h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-3">Twoi handlowcy:</h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Tracą godziny na wypełnianie CRM</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Zapominają o follow-upach</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Nie dostają systematycznego feedbacku</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-3">A Ty:</h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Nie masz czasu słuchać wszystkich rozmów</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Nie wiesz dlaczego leady się nie zamykają</span>
+                        </li>
+                        <li className="flex items-start gap-2 text-muted-foreground">
+                          <span className="text-destructive mt-1">❌</span>
+                          <span>Tracisz deals przez słabą dokumentację</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Solutions Section */}
+                <div className="bg-gradient-primary p-8">
+                  <h3 className="text-2xl font-bold text-primary-foreground mb-6">
+                    CallOS rozwiązuje to wszystko automatycznie:
+                  </h3>
+                  
+                  <ul className="space-y-4 mb-8">
+                    <li className="flex items-start gap-2 text-primary-foreground">
+                      <span className="mt-1">✅</span>
+                      <span>CRM wypełnia się sam po każdej rozmowie</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-primary-foreground">
+                      <span className="mt-1">✅</span>
+                      <span>Gotowe emaile i zadania dla handlowców</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-primary-foreground">
+                      <span className="mt-1">✅</span>
+                      <span>Spersonalizowany feedback oparty na Twoim procesie sprzedaży</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-primary-foreground">
+                      <span className="mt-1">✅</span>
+                      <span>Dashboard pokazujący jakość rozmów zespołu</span>
+                    </li>
+                  </ul>
+
+                  <div className="space-y-3 border-t border-primary-foreground/20 pt-6">
+                    <p className="flex items-start gap-2 text-primary-foreground font-semibold">
+                      <span>→</span>
+                      <span>Zespół skupia się na sprzedaży, nie dokumentacji</span>
+                    </p>
+                    <p className="flex items-start gap-2 text-primary-foreground font-semibold">
+                      <span>→</span>
+                      <span>Ty masz pełną kontrolę bez mikromanagementu</span>
+                    </p>
+                  </div>
+
+                  <div className="mt-8">
+                    <a 
+                      href="https://sailes.tech/kontakt/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block bg-card hover:bg-card/90 text-foreground font-semibold px-6 py-3 rounded-lg transition-smooth shadow-soft"
+                    >
+                      Zobacz jak to działa - demo 10 min
+                    </a>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
