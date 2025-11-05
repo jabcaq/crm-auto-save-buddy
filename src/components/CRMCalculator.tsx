@@ -367,7 +367,7 @@ const CRMCalculator = () => {
 
                   <div className="mt-8">
                     <a 
-                      href="https://sailes.tech/kontakt/" 
+                      href="https://callos.sailes.tech" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-block bg-card hover:bg-card/90 text-foreground font-semibold px-6 py-3 rounded-lg transition-smooth shadow-soft"
