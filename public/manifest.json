@@ -1,0 +1,20 @@
+{
+  "name": "Kalkulator Oszczędności CallOS",
+  "short_name": "CallOS",
+  "icons": [
+    {
+      "src": "/sailboat-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#4A90E2",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
+
